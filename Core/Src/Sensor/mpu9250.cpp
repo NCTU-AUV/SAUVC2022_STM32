@@ -1,7 +1,7 @@
 #include "Sensor/mpu9250.h"
 #include "Sensor/mpu9250_register_map.h"
 
-Mpu9250::Mpu9250(/* args */): q_EtoA(0, 0.707, 0.707, 0)/*, q_ItoE(1, 0, 0, 0)*/, q_ItoE(0.707, -0.707, 0, 0)
+Mpu9250::Mpu9250(/* args */): q_EtoA(0, 0.707, 0.707, 0), q_ItoE(0.707, -0.707, 0, 0) /*q_ItoE(0, -0.707, -0.707, 0)*/
 {
 
 }
@@ -63,12 +63,17 @@ void Mpu9250::update(Dynamics &s)
 	//Tansfer quaternion from Earth frame to AUV frame
 	s.orientation = q_EtoA.conjugate() * (q_filter * q_ItoE) * q_EtoA;
 
+	//s.orientation =  q_ItoE * q_filter; //* q_ItoE.conjugate();
+
 	s.velocity.angular.x = gx;
 	s.velocity.angular.y = gy;
 	s.velocity.angular.z = gz;
-	// test[0] = atan2f(s.orientation.w * s.orientation.x + s.orientation.y * s.orientation.z, 0.5f - s.orientation.x * s.orientation.x - s.orientation.y * s.orientation.y) * 57.29578f;
-	// test[1] = asinf(-2.0f * (s.orientation.x * s.orientation.z - s.orientation.w * s.orientation.y)) * 57.29578f;
-	// test[2] = filter.getYaw();
+	//test[0] = filter.getRoll();
+	//test[1] = filter.getPitch();
+
+	//test[0] = atan2f(s.orientation.w * s.orientation.x + s.orientation.y * s.orientation.z, 0.5f - s.orientation.x * s.orientation.x - s.orientation.y * s.orientation.y) * 57.29578f;
+	//test[1] = asinf(-2.0f * (s.orientation.x * s.orientation.z - s.orientation.w * s.orientation.y)) * 57.29578f;
+	//test[2] = filter.getYaw();
 }
 
 

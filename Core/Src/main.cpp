@@ -18,11 +18,14 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
 #include "i2c.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+#include "rosserial.h"
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -67,19 +70,28 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 
 //Uart Communication Class
-Read_data R;
+//Read_data R;
 // Dvl_reader D;
 
 //data receive from Rpi
-uint8_t zhc = 0;
-uint8_t arr_test[29];
-float desired_depth = 0.5;  //desired depth
+//uint8_t zhc = 0;
+//uint8_t arr_test[29];
+//float desired_depth = 0.5;  //desired depth
+//float yaw_sonar = 0;  //yaw angle get from sonar
+//float val2 = 0;
+//geometry::Vector ex = {0, 2, 0};
+//geometry::Vector ev = {0};
+
+
+// rosserial_parameters
+float desired_depth = 0;  //desired depth
 float yaw_sonar = 0;  //yaw angle get from sonar
+geometry::Vector ex = {0, 0, 0}; // position error
+geometry::Vector ev = {0};       // velocity error
+float depth = 0;
 
-geometry::Vector ex = {0, 2, 0};
-geometry::Vector ev = {0};
-
-int arm_angle[3] = {0, 0, 0};  //-90~90
+// robot arm
+//int arm_angle[3] = {0, 0, 0};  //-90~90
 
 /* USER CODE END 0 */
 
@@ -92,22 +104,22 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   //debug
-  char uart_buf[100];
-  int uart_buf_len;
-
+  //char uart_buf[100];
+  //int uart_buf_len;
+  
   //sensor
-  Mpu9250 imu;
+  //Mpu9250 imu;
   Bar02 depth_sensor;
 
   Dynamics state = {0};
   Kinematics control_input = {0};  //force: x, y, z; moment: x, y, z
   // Kinematics control_input = {{0, 1, 1}, {0, 0, 0}};
 
-  Controller controller({1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}, {1.5, 1, 1.5}, {1, 1, 0}, 0);
+  Controller controller({0.2, 0.2, 0.2}, {0.2, 0.2, 0.2}, {0.2, 0.2, 0.2}, {0.2, 0.2, 0}, 0); 
   Propulsion_Sys propulsion_sys;
 
   //Robot Arm
-  Robot_Arm arm;
+  //Robot_Arm arm;
 
   /* USER CODE END 1 */
 
@@ -128,13 +140,14 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
+  MX_DMA_Init();
   MX_GPIO_Init();
   MX_I2C1_Init();
   MX_SPI2_Init();
   MX_TIM2_Init();
   MX_TIM4_Init();
   MX_TIM8_Init();
-  MX_UART4_Init();
+  MX_USART3_UART_Init();
   MX_UART5_Init();
   /* USER CODE BEGIN 2 */
 
@@ -144,8 +157,13 @@ int main(void)
   //HAL_UART_Receive_IT(&huart4, &D.receieve_char, 1);
   //R.receieve();
 
+  // rosserial communication
+  rosserial_init(&ex, &state, &yaw_sonar);
+  rosserial_subscribe();
+  rosserial_subscribe();
+
   //Sensor
-  imu.set(&hspi2, GPIOB, GPIO_PIN_12);
+  //imu.set(&hspi2, GPIOB, GPIO_PIN_12);
   if (!depth_sensor.set(&hi2c1))
     return -1;
   
@@ -155,15 +173,38 @@ int main(void)
   //Output
   propulsion_sys.set_timer(&htim2, &htim8);
 
-  arm.set(&htim4, arm_angle);
+  //arm.set(&htim4, arm_angle);
+  
+
 
   //Wait for motor to setup
   HAL_Delay(3000);
 
+  /*
+  // check motor direction
+  propulsion_sys.motor[0].output(0.4);
+  propulsion_sys.motor[1].output(-0.4);
+  propulsion_sys.motor[2].output(-0.4);
+  propulsion_sys.motor[3].output(0.4);
+  propulsion_sys.motor[4].output(0.4);
+  propulsion_sys.motor[5].output(-0.4);
+  propulsion_sys.motor[6].output(-0.4);
+  propulsion_sys.motor[7].output(0.4);
+  HAL_Delay(15000);
+  
+  propulsion_sys.motor[0].output(0);
+  propulsion_sys.motor[1].output(0);
+  propulsion_sys.motor[2].output(0);
+  propulsion_sys.motor[3].output(0);
+  propulsion_sys.motor[4].output(0);
+  propulsion_sys.motor[5].output(0);
+  propulsion_sys.motor[6].output(0);
+  propulsion_sys.motor[7].output(0);
+  */
+
   //debug
   // uart_buf_len = sprintf(uart_buf, "ready\r\n");
   // HAL_UART_Transmit(&huart5, (uint8_t*) uart_buf, uart_buf_len, 1000);
-  
   // while(zhc!='\n');
 
   /* USER CODE END 2 */
@@ -173,52 +214,50 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+    /**/
+    rosserial_subscribe();
     //IMU
     imu.update(state);
-
     //Depth Sensor
-    // depth_sensor.read_value();
-    // ex.z = desired_depth - depth_sensor.depth();
-
-    uart_buf_len = sprintf(uart_buf, "Depth: %.3f %.3f\r\n", depth_sensor.depth(), ex.z);
-    HAL_UART_Transmit(&huart5, (uint8_t*) uart_buf, uart_buf_len, 1000);
+    depth_sensor.read_value();
+    depth = depth_sensor.depth();
+    ex.z = desired_depth - depth_sensor.depth();
 
     //Controller
     controller.update(state, ex, ev, yaw_sonar, control_input);
 
-    // uart_buf_len = sprintf(uart_buf, "%.2f %.2f\r\n", controller.eR.x, controller.eR.y);
-    // HAL_UART_Transmit(&huart5, (uint8_t*) uart_buf, uart_buf_len, 1000);
-    
     //Allocate and Output
     propulsion_sys.allocate(control_input);  //T200 Motor Output
-
+    
     //Motor take turns test*-------------------------------------------
-    // propulsion_sys.motor[0].output(-0.5);
-    // HAL_Delay(2000);
-    // propulsion_sys.motor[0].output(0);
-    // propulsion_sys.motor[1].output(0.5);
-    // HAL_Delay(2000);
-    // propulsion_sys.motor[1].output(0);
-    // propulsion_sys.motor[2].output(0.5);
-    // HAL_Delay(2000);
-    // propulsion_sys.motor[2].output(0);
-    // propulsion_sys.motor[3].output(-0.5);
-    // HAL_Delay(2000);
-    // propulsion_sys.motor[3].output(0);
-    // propulsion_sys.motor[4].output(-0.5);
-    // HAL_Delay(2000);
-    // propulsion_sys.motor[4].output(0);
-    // propulsion_sys.motor[5].output(0.5);
-    // HAL_Delay(2000);
-    // propulsion_sys.motor[5].output(0);
-    // propulsion_sys.motor[6].output(0.5);
-    // HAL_Delay(2000);
-    // propulsion_sys.motor[6].output(0);
-    // propulsion_sys.motor[7].output(-0.5);
-    // HAL_Delay(2000);
-    // propulsion_sys.motor[7].output(0);
+    /*
+    propulsion_sys.motor[0].output(-0.2);
+    HAL_Delay(2000);
+    propulsion_sys.motor[0].output(0);
+    propulsion_sys.motor[1].output(0.2);
+    HAL_Delay(2000);
+    propulsion_sys.motor[1].output(0);
+    propulsion_sys.motor[2].output(0.2);
+    HAL_Delay(2000);
+    propulsion_sys.motor[2].output(0);
+    propulsion_sys.motor[3].output(-0.2);
+    HAL_Delay(2000);
+    propulsion_sys.motor[3].output(0);
+    propulsion_sys.motor[4].output(-0.2);
+    HAL_Delay(2000);
+    propulsion_sys.motor[4].output(0);
+    propulsion_sys.motor[5].output(0.2);
+    HAL_Delay(2000);
+    propulsion_sys.motor[5].output(0);
+    propulsion_sys.motor[6].output(0.2);
+    HAL_Delay(2000);
+    propulsion_sys.motor[6].output(0);
+    propulsion_sys.motor[7].output(-0.2);
+    HAL_Delay(2000);
+    propulsion_sys.motor[7].output(0);
+    */
     //-----------------------------------------------------------------
+
 
     //Robot arm
     // arm.move(arm_angle);  //Robot Arm Output
@@ -230,7 +269,9 @@ int main(void)
     // arm.move(arm_angle);
     // HAL_Delay(1500);
 
-
+    rosserial_publish(depth);
+    
+    /*
     // receieve data from rpi
     // 45 is total_byte and 44 is size of data
     if( HAL_UART_Receive(&huart5, arr_test, 45,1000) == HAL_OK)
@@ -267,8 +308,9 @@ int main(void)
       arm_angle[1] = R.get_joint1();
       arm_angle[2] = R.get_joint2();
       desired_depth = R.get_depth();
+      
     }
-    
+    */
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -343,8 +385,8 @@ void SystemClock_Config(void)
 //   //   HAL_UART_Receive_IT(&huart4, &D.receieve_char, 1);
 //   // }
 // }
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+//{
   // //if(huart->Instance == UART5)
   // R.receieve();
   // if(R.access_ok() == true)
@@ -357,7 +399,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   //   R.access_init();
   // }
   //HAL_UART_Receive_IT(&huart5, arr_test, 28);
-}
+//}
 /* USER CODE END 4 */
 
 /**

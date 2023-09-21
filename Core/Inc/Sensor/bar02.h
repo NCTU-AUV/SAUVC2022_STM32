@@ -22,7 +22,7 @@ public:
 	void setModel(uint8_t model);
 	uint8_t getModel();
 	void setFluidDensity(float density);
-    float read_value();
+    void read_value();
 
     float pressure(float conversion = 1.0f);
     float temperature();

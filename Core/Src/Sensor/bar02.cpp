@@ -48,7 +48,10 @@ bool Bar02::set(I2C_HandleTypeDef* handler)
     uint8_t crcCalculated = crc4(C);
 
     if (crcCalculated != crcRead)
+    {
         return false;
+    }
+        
 
 	uint8_t version = (C[0] >> 5) & 0x7F; // Extract the sensor version from PROM Word 0
 
@@ -73,18 +76,18 @@ bool Bar02::set(I2C_HandleTypeDef* handler)
     setFluidDensity(997);
 
     // remove initial sensor value (not accurate)
-    for(int i =0;i<=9;i++){
+    for(int i =0;i<10;i++){
         read_value();
     }
 
     // intialize 
     float tmp = 0;
-    for(int i = 0; i <= 9; i++)
+    for(int i = 0; i < 50; i++)
     {
         read_value();
         tmp += depth();
     }
-    depth_offset = tmp / 10.0;
+    depth_offset = tmp / 50.0;
 
     return true;
 }
@@ -104,12 +107,12 @@ void Bar02::setFluidDensity(float density)
 	fluidDensity = density;
 }
 
-float Bar02::read_value()
+void Bar02::read_value()
 {
     uint8_t buffer[3]={0};
 
     if (h == nullptr)
-        return -1;
+        return;
 
     // D1 conversion
     HAL_I2C_Master_Transmit(h, MS5837_ADDR, &MS5837_CONVERT_D1_8192, 1, 1000);

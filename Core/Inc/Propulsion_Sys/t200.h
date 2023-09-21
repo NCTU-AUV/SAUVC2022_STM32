@@ -12,6 +12,7 @@
 #include "motor.h"
 #include "t200_motor_graph.h"
 
+#define DIFF_MAX 90
 /**
  * @brief A T200 motor class
  */
@@ -19,6 +20,7 @@ class T200
 {
 private:
     Motor motor;
+    int prev_signal = 1500;
 
 public:
     T200();

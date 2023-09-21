@@ -61,12 +61,17 @@ void T200::output(const float &force)
     else
         signal = SIGNAL[mid];
 
-    //Boundary 1244-1752
-    if (signal > 1752)
-        signal = 1752;
-    else if (signal < 1244)
-        signal = 1244;
+    // Boundary 1244-1752 
+    if (signal > 1752)      signal = 1752;
+    else if (signal < 1244) signal = 1244;
+    /*
+    // abs(signal diff) < 90 (avoid inrush current)
+    int diff = signal - prev_signal;
+    if(diff > DIFF_MAX)    signal = prev_signal + DIFF_MAX;
+    else if(diff<DIFF_MAX) signal = prev_signal - DIFF_MAX;
+    */
 
+    prev_signal = signal;
     //output PWM signal
     motor.output(signal);
 }

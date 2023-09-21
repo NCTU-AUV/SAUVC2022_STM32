@@ -27,7 +27,7 @@ public:
 	int16_t read_value(uint8_t type);
 	void update(Dynamics &s);
 
-	// float test[3];
+	float test[3];
 };
 
 #endif

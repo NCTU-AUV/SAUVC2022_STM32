@@ -94,7 +94,7 @@ void Controller::update(Dynamics &s, const geometry::Vector &ex, const geometry:
     er_mul(Rd, R, Re);
     eR.x = Re[2][1];
     eR.y = Re[0][2];
-    eR.z = (-1) * yaw_sonar;
+    eR.z = Re[1][0];    //(-1) * yaw_sonar; 
     // eR.z = 0.5;
 
     eOmega.x = s.velocity.angular.x;
@@ -108,4 +108,8 @@ void Controller::update(Dynamics &s, const geometry::Vector &ex, const geometry:
     ctrl_input.angular.y = KR.y * eR.y + KOmega.y * eOmega.y;
     if (eR.x < 0.001 && eR.y < 0.001)
         ctrl_input.angular.z = KR.z * eR.z + KOmega.z * eOmega.z;
+}
+
+geometry::Vector* Controller::get_ex(){
+    return &ex;
 }
