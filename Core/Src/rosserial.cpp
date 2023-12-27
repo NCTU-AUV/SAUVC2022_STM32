@@ -21,7 +21,7 @@ std_msgs::Float32MultiArray pub_msg;
 Quaternion q_camera2AUV;
 extern Dynamics state;
 double rec_msg[13];
-
+int operate;
 
 /* ----subscriber parameters
 - 0~3:   state.orientation (quaternion) w,x,y,z
@@ -61,6 +61,7 @@ void callback(const std_msgs::Float32MultiArray& msg){
   ev.x = msg.data[10];
   ev.y = msg.data[11];
   //*(ev.z) = msg.data[12];
+  operate = msg.data[13]; //0 -> interrupt
 }
 
 ros::Publisher pub("stm32_to_rpi", &pub_msg);
@@ -73,14 +74,19 @@ void rosserial_subscribe(){
 
 void rosserial_publish(float q_w, float q_x, float q_y, float q_z){
   // publish data
-  pub_msg.data_length = 4;
-  float array[4] = {0};
+  pub_msg.data_length = 5;
+  float array[5] = {0};
   
   
   array[0] = q_w;
   array[1] = q_x;
   array[2] = q_y;
   array[3] = q_z;
+
+  if(operate)
+    array[4] = 1;
+  if(!operate) 
+    array[4] = 0; 
   //pub_msg.data[0] = depth;
   pub_msg.data = array;
   pub.publish(&pub_msg);
