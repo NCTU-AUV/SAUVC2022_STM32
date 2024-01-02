@@ -99,7 +99,17 @@ void Propulsion_Sys::allocate(const Kinematics &ctrl_input)
     thrust[5] = 0.1;
     thrust[6] = 0.1;
     thrust[7] = 0.1;*/
-
+    
+    //Adjest each motor
+    thrust[0] *= 1;
+    thrust[1] *= 1;
+    thrust[2] *= 1;
+    thrust[3] *= 1;
+    thrust[4] *= 1;
+    thrust[5] *= 1;
+    thrust[6] *= 1;
+    thrust[7] *= 1;
+    
     //Reverse direction
     thrust[0] *= -1;
     thrust[3] *= -1;
@@ -109,5 +119,5 @@ void Propulsion_Sys::allocate(const Kinematics &ctrl_input)
     extern int operate;
     //output thurst
     for (int i = 0; i < 8; i++)
-        motor[i].output(0.3 * operate * thrust[i]);
+        motor[i].output(operate * thrust[i]);
 }

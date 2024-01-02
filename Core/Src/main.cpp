@@ -84,10 +84,11 @@ void SystemClock_Config(void);
 
 
 // rosserial_parameters
-float desired_depth = 0;  //desired depth
+float desired_depth = 0.5;  //desired depth
 float yaw_sonar = 0;  //yaw angle get from sonar
 extern geometry::Vector ex = {0, 0, 0}; // position error
 extern geometry::Vector ev = {0, 0, 0};       // velocity error
+int count = 5;
 double depth = 0;
 
 Dynamics state;
@@ -115,8 +116,8 @@ int main(void)
   //Dynamics state = {0};
   Kinematics control_input = {0};  //force: x, y, z; moment: x, y, z
   // Kinematics control_input = {{0, 1, 1}, {0, 0, 0}};
-
-  Controller controller({0.2, 0.2, 0.2}, {0.2, 0.2, 0.2}, {0.2, 0.2, 0.2}, {0.2, 0.2, 0}, 0); 
+  //                     Kx  ex           KV ev            KR angle error   Komega angular_v      Alpha_sonar 
+  Controller controller({0.2, 0.2, 0.04}, {0.2, 0.2, 0.2}, {0.2, 0.04, 0.04}, {0, 0, 0}, 0); 
   Propulsion_Sys propulsion_sys;
 
   //Robot Arm
@@ -207,7 +208,7 @@ int main(void)
   // uart_buf_len = sprintf(uart_buf, "ready\r\n");
   // HAL_UART_Transmit(&huart5, (uint8_t*) uart_buf, uart_buf_len, 1000);
   // while(zhc!='\n');
-
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -222,10 +223,30 @@ int main(void)
     //Depth Sensor
     depth_sensor.read_value();
     depth = depth_sensor.depth();
-    //ex.z = desired_depth - depth_sensor.depth();
-    ex.z = 0;
+    ex.z = desired_depth - depth_sensor.depth();
+    //ex.z = 0;
+    
+    
     //Controller
     controller.update(state, ex, ev, yaw_sonar, control_input);
+    extern int operate;
+
+    if(operate == 0)
+      count = 5;
+
+    if(count > 0)
+    {
+      HAL_Delay(10);
+      control_input.linear.x = 0;
+      control_input.linear.y = 0;
+      control_input.linear.z = 1.5;
+      control_input.angular.x = 0;
+      control_input.angular.y = 0;
+      control_input.angular.z = 0;
+      count -= 1;
+    }
+    control_input.linear.z = 1.0;
+    control_input.angular.y = 0;
 
     //Allocate and Output
     propulsion_sys.allocate(control_input);  //T200 Motor Output
