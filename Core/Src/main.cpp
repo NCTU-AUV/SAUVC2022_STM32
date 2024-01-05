@@ -88,7 +88,7 @@ float desired_depth = 0.5;  //desired depth
 float yaw_sonar = 0;  //yaw angle get from sonar
 extern geometry::Vector ex = {0, 0, 0}; // position error
 extern geometry::Vector ev = {0, 0, 0};       // velocity error
-int count = 7;
+int count = 15;
 int time = 0;
 double depth = 0;
 
@@ -118,7 +118,7 @@ int main(void)
   Kinematics control_input = {0};  //force: x, y, z; moment: x, y, z
   // Kinematics control_input = {{0, 1, 1}, {0, 0, 0}};
   //                     Kx  ex           KV ev            KR angle error   Komega angular_v      Alpha_sonar 
-  Controller controller({0.24, 0.2, 0.04}, {0.2, 0.2, 0.2}, {0.2, 0.04, 0.34}, {0, 0, 0}, 0); 
+  Controller controller({0.24, 0.2, 0.04}, {0.2, 0.2, 0.2}, {0.2, 0.05, 0.38}, {0, 0, 0}, 0); 
   Propulsion_Sys propulsion_sys;
 
   //Robot Arm
@@ -164,7 +164,7 @@ int main(void)
   rosserial_init(&ex, &state, &yaw_sonar);
   rosserial_subscribe();
   
-  HAL_Delay(100);
+  HAL_Delay(1000);
 
   //Sensor
   imu.set(&hspi2, GPIOB, GPIO_PIN_12);
@@ -176,7 +176,7 @@ int main(void)
   controller.set(state.orientation);
   //Output
   propulsion_sys.set_timer(&htim2, &htim8);
-  int de = 50;
+  int de = 100;
   //arm.set(&htim4, arm_angle);
   
 
@@ -234,35 +234,36 @@ int main(void)
     extern int operate;
 
     if(operate == 0)
-      count = 7;
+      count = 15;
 
     if(count > 0)
     {
       HAL_Delay(10);
       control_input.linear.x = 0;
       control_input.linear.y = 0;
-      control_input.linear.z = 0.5;
+      control_input.linear.z = 0.55;
       control_input.angular.x = 0;
       control_input.angular.y = 0;
       control_input.angular.z = 0;
       count -= 1;
     }
-
-    if (de > 35)
+    control_input.linear.z = 0.55;
+    /*
+    if (de > 50)
     {
-      control_input.linear.z = 0.5;
+      
       de -= 1;
     }
-    else if ((de > 0) && (de < 35))
+    else if ((de > 0) && (de < 50))
     {
-      control_input.linear.z = 0.4;
+      control_input.linear.z = 0.3;
       de -= 1;
     }
     else
       de = 50;
+    */
 
-
-    //control_input.angular.y = 0;    
+    control_input.angular.y = 0;    
     //control_input.linear.z = -0.5;
     //Allocate and Output
     propulsion_sys.allocate(control_input);  //T200 Motor Output
