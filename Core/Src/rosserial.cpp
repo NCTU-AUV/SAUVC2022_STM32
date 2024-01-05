@@ -78,12 +78,11 @@ void rosserial_subscribe(){
 
 void rosserial_publish(float q_w, float q_x, float q_y, float q_z){
   // publish data
-  pub_msg.data_length = 1;
-  float array[1] = {0};
+  pub_msg.data_length = 4;
+  float array[4] = {0};
   
   
   array[0] = q_w;
-  /*
   array[1] = q_x;
   array[2] = q_y;
   array[3] = q_z;

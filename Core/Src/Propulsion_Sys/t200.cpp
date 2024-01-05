@@ -78,7 +78,7 @@ void T200::output(const float &force)
         var-=i;
 
         motor.output(prev_signal);
-        HAL_Delay(1);
+        HAL_Delay(0.5);
     }    
     //motor.output(signal);
     prev_signal = signal; 
