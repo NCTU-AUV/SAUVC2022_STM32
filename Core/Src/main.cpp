@@ -118,7 +118,7 @@ int main(void)
   Kinematics control_input = {0};  //force: x, y, z; moment: x, y, z
   // Kinematics control_input = {{0, 1, 1}, {0, 0, 0}};
   //                     Kx  ex           KV ev            KR angle error   Komega angular_v      Alpha_sonar 
-  Controller controller({0.24, 0.2, 0.04}, {0.2, 0.2, 0.2}, {0.2, 0.04, 0.35}, {0, 0, 0}, 0); 
+  Controller controller({0.24, 0.2, 0.04}, {0.2, 0.2, 0.2}, {0.2, 0.04, 0.34}, {0, 0, 0}, 0); 
   Propulsion_Sys propulsion_sys;
 
   //Robot Arm
@@ -164,7 +164,7 @@ int main(void)
   rosserial_init(&ex, &state, &yaw_sonar);
   rosserial_subscribe();
   
-  HAL_Delay(10);
+  HAL_Delay(100);
 
   //Sensor
   imu.set(&hspi2, GPIOB, GPIO_PIN_12);
@@ -241,7 +241,7 @@ int main(void)
       HAL_Delay(10);
       control_input.linear.x = 0;
       control_input.linear.y = 0;
-      control_input.linear.z = 0.55;
+      control_input.linear.z = 0.5;
       control_input.angular.x = 0;
       control_input.angular.y = 0;
       control_input.angular.z = 0;
@@ -250,7 +250,7 @@ int main(void)
 
     if (de > 35)
     {
-      control_input.linear.z = 0.55;
+      control_input.linear.z = 0.5;
       de -= 1;
     }
     else if ((de > 0) && (de < 35))
