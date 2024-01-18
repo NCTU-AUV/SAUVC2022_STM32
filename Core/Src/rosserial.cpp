@@ -56,10 +56,8 @@ void callback(const std_msgs::Float32MultiArray& msg){
   state_pointer->velocity.angular.y = msg.data[5];
   state_pointer->velocity.angular.z = msg.data[6]; 
   
-  if(count <= 0)
-    ex_pointer->x = msg.data[7];
-  else
-    ex_pointer->x = 0;
+  
+  ex_pointer->x = msg.data[7];
   ex_pointer->y = msg.data[8];
   //ex.z = msg.data[9];
   ev_pointer->x = msg.data[10];

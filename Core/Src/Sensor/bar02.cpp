@@ -76,7 +76,7 @@ bool Bar02::set(I2C_HandleTypeDef* handler)
     setFluidDensity(997);
 
     // remove initial sensor value (not accurate)
-    for(int i =0;i<10;i++){
+    for(int i = 0; i < 10; i++){
         read_value();
     }
 
