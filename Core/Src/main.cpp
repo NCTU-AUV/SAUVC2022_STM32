@@ -84,7 +84,7 @@ void SystemClock_Config(void);
 
 
 // rosserial_parameters
-float desired_depth = 0.3;  //desired depth
+extern float desired_depth;  //desired depth
 float yaw_sonar = 0;  //yaw angle get from sonar
 extern geometry::Vector ex = {0, 0, 0}; // position error
 extern geometry::Vector ev = {0, 0, 0};       // velocity error
@@ -92,7 +92,7 @@ double depth = 0;
 
 Dynamics state;
 // robot arm
-//int arm_angle[3] = {0, 0, 0};  //-90~90
+extern int arm_angle[3];  //-90~90
 
 /* USER CODE END 0 */
 
@@ -114,13 +114,13 @@ int main(void)
 
   //Dynamics state = {0};
   Kinematics control_input = {0};  //force: x, y, z; moment: x, y, z
-  // Kinematics control_input = {{0, 1, 1}, {0, 0, 0}};
-  //                     Kx  ex           KV ev            KR angle error   Komega angular_v      Alpha_sonar 
-  Controller controller({0.3, 0.3, 1}, {0.2, 0.2, 0.2}, {0.2, 0.0005, 0.38}, {0, 0, 0}, 0); 
+  // Kinematics control_input = {{0, 1, 1}, {0, 0, 0}};               0.38
+  //                     Kx  ex /0.3    KV ev            KR angle error   Komega angular_v      Alpha_sonar 
+  Controller controller({0.6, 0.6, 1}, {0.2, 0.2, 0.2}, {0.05, 0.05, 0.51}, {0, 0, 0}, 0); 
   Propulsion_Sys propulsion_sys;
 
   //Robot Arm
-  //Robot_Arm arm;
+  Robot_Arm arm;
 
   /* USER CODE END 1 */
 
@@ -175,7 +175,7 @@ int main(void)
   //Output
   propulsion_sys.set_timer(&htim2, &htim8);
   
-  //arm.set(&htim4, arm_angle);
+  arm.set(&htim4, arm_angle);
   
 
 
@@ -222,7 +222,7 @@ int main(void)
     //Depth Sensor
     depth_sensor.read_value();
     depth = depth_sensor.depth();
-    ex.z = desired_depth - depth_sensor.depth();
+    //ex.z = desired_depth - depth_sensor.depth();
     //ex.z = 0;
     
     
@@ -230,6 +230,8 @@ int main(void)
     controller.update(state, ex, ev, yaw_sonar, control_input);
 
     //Allocate and Output
+    control_input.linear.z = 1.3;
+    control_input.angular.y = -1 * control_input.angular.y;
     propulsion_sys.allocate(control_input);  //T200 Motor Output
     
     //Motor take turns test*-------------------------------------------
@@ -263,14 +265,15 @@ int main(void)
 
 
     //Robot arm
-    // arm.move(arm_angle);  //Robot Arm Output
-    // HAL_Delay(1500);
-    // arm_angle[2] = 10;
-    // arm.move(arm_angle);
-    // HAL_Delay(1500);
-    // arm_angle[2] = -10;
-    // arm.move(arm_angle);
-    // HAL_Delay(1500);
+    /*
+    arm.move(arm_angle);  //Robot Arm Output
+    HAL_Delay(1500);
+    arm_angle[0] = 10;
+    arm.move(arm_angle);
+    HAL_Delay(1500);
+    arm_angle[0] = -10;
+    arm.move(arm_angle);
+    HAL_Delay(1500);*/
     //rosserial_publish(state.orientation.w, state.orientation.x, state.orientation.y, state.orientation.z);
     rosserial_publish(control_input.angular.x, control_input.angular.y, control_input.angular.z, depth);
     

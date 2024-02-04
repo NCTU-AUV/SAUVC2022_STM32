@@ -4,7 +4,7 @@
 #include "Datatype/dynamics.h"
 
 const float weight = 24.3;
-const float buoyancy = 24.85;
+const float buoyancy = 25.62;
 
 class Controller
 {

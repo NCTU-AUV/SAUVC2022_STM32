@@ -20,14 +20,16 @@ float rec;
 std_msgs::Float32MultiArray pub_msg;
 Quaternion q_camera2AUV;
 extern Dynamics state;
-extern int count;
-double rec_msg[13];
+
+int arm_angle[3];
+float desired_depth;
 int operate;
 
 /* ----subscriber parameters
-- 0~3:   state.orientation (quaternion) w,x,y,z
+- 0-3:   state.orientation (quaternion) w,x,y,z
 - 4-6:   state.velocity.angular: x,y,z
-- 7-9:   ex (position error): x,y,z
+- 7-8:   ex (position error): x,y
+- 9  :   servo motor angle
 - 10-12: ev (velocity error): x,y,z
 
 
@@ -59,11 +61,14 @@ void callback(const std_msgs::Float32MultiArray& msg){
   
   ex_pointer->x = msg.data[7];
   ex_pointer->y = msg.data[8];
-  //ex.z = msg.data[9];
+  
+  arm_angle[0] = msg.data[9];
+  
   ev_pointer->x = msg.data[10];
   ev_pointer->y = msg.data[11];
   ev_pointer->z = msg.data[12];
   operate = msg.data[13]; //0 -> interrupt
+  desired_depth = msg.data[14];
 }
 
 ros::Publisher pub("stm32_to_rpi", &pub_msg);
