@@ -116,7 +116,7 @@ int main(void)
   Kinematics control_input = {0};  //force: x, y, z; moment: x, y, z
   // Kinematics control_input = {{0, 1, 1}, {0, 0, 0}};               0.38
   //                     Kx  ex /0.3    KV ev            KR angle error   Komega angular_v      Alpha_sonar 
-  Controller controller({0.6, 0.6, 1}, {0.2, 0.2, 0.2}, {0.05, 0.05, 0.51}, {0, 0, 0}, 0); 
+  Controller controller({0.6, 0.6, 1}, {0.2, 0.2, 0.2}, {0.05, 0.05, 0.512}, {0, 0, 0}, 0); 
   Propulsion_Sys propulsion_sys;
 
   //Robot Arm

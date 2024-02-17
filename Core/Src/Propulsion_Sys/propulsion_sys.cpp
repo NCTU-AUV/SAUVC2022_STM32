@@ -105,9 +105,9 @@ void Propulsion_Sys::allocate(const Kinematics &ctrl_input)
     thrust[1] *= 1;
     thrust[2] *= 1;
     thrust[3] *= 1;
-    thrust[4] *= 0.7;
+    thrust[4] *= 1;
     thrust[5] *= 1;
-    thrust[6] *= 0.7;
+    thrust[6] *= 1;
     thrust[7] *= 1;
     
     //Reverse direction
