@@ -89,12 +89,6 @@ void rosserial_publish(float q_w, float q_x, float q_y, float q_z){
   array[1] = q_x;
   array[2] = q_y;
   array[3] = q_z;
-  /*
-  if(operate)
-    array[4] = 1;
-  if(!operate) 
-    array[4] = 0;*/ 
-  //pub_msg.data[0] = depth;
   
   pub_msg.data = array;
   pub.publish(&pub_msg);

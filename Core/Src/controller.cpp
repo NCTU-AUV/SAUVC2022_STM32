@@ -110,6 +110,10 @@ void Controller::update(Dynamics &s, const geometry::Vector &ex, const geometry:
         ctrl_input.angular.z = KR.z * eR.z + KOmega.z * eOmega.z;
 }
 
+geometry::Vector Controller::get_eR(){
+    return eR;
+}
+
 geometry::Vector* Controller::get_ex(){
     return &ex;
 }

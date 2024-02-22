@@ -25,7 +25,7 @@
 #include "usart.h"
 #include "gpio.h"
 #include "rosserial.h"
-
+#include "interrupt.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -86,13 +86,18 @@ void SystemClock_Config(void);
 // rosserial_parameters
 extern float desired_depth;  //desired depth
 float yaw_sonar = 0;  //yaw angle get from sonar
-extern geometry::Vector ex = {0, 0, 0}; // position error
-extern geometry::Vector ev = {0, 0, 0};       // velocity error
+geometry::Vector ex = {0, 0, 0}; // position error
+geometry::Vector ev = {0, 0, 0};       // velocity error
+geometry::Vector eR;
 double depth = 0;
 
 Dynamics state;
 // robot arm
-extern int arm_angle[3];  //-90~90
+//extern int arm_angle[3];  //-90~90
+int angle = 0;
+int speed = 30;
+int mode = 0;
+float current_arm;
 
 /* USER CODE END 0 */
 
@@ -111,6 +116,7 @@ int main(void)
   //sensor
   Mpu9250 imu;
   Bar02 depth_sensor;
+  Switch Switch;
 
   //Dynamics state = {0};
   Kinematics control_input = {0};  //force: x, y, z; moment: x, y, z
@@ -165,6 +171,8 @@ int main(void)
   HAL_Delay(1000);
 
   //Sensor
+  Switch.read_state();
+  bool interrupt;
   imu.set(&hspi2, GPIOB, GPIO_PIN_12);
   if (!depth_sensor.set(&hi2c1))
     return -1;
@@ -175,7 +183,7 @@ int main(void)
   //Output
   propulsion_sys.set_timer(&htim2, &htim8);
   
-  arm.set(&htim4, arm_angle);
+  arm.set(&htim4, speed);
   
 
 
@@ -228,12 +236,21 @@ int main(void)
     
     //Controller
     controller.update(state, ex, ev, yaw_sonar, control_input);
-
+    eR = controller.get_eR();
     //Allocate and Output
     control_input.linear.z = 1.3;
-    control_input.angular.y = -1 * control_input.angular.y;
-    propulsion_sys.allocate(control_input);  //T200 Motor Output
     
+    Switch.read_state();
+    interrupt = Switch.get_state();
+    
+    propulsion_sys.allocate(control_input);  //T200 Motor Output
+    arm.move_to(40);
+    HAL_Delay(10000);
+    //arm.move(1);
+    //arm.rotate(angle % 90);
+    angle += 10;
+    //mode++;
+    HAL_Delay(500);
     //Motor take turns test*-------------------------------------------
     /*
     propulsion_sys.motor[0].output(-0.2);
@@ -275,35 +292,11 @@ int main(void)
     arm.move(arm_angle);
     HAL_Delay(1500);*/
     //rosserial_publish(state.orientation.w, state.orientation.x, state.orientation.y, state.orientation.z);
-    rosserial_publish(control_input.angular.x, control_input.angular.y, control_input.angular.z, depth);
-    
+    //rosserial_publish(control_input.angular.x, control_input.angular.y, control_input.angular.z, depth);
+    rosserial_publish(eR.x, eR.y, eR.z, depth);
+    //rosserial_publish(control_input.linear.x, control_input.linear.y, control_input.angular.z, depth);
     /*
-    // receieve data from rpi
-    // 45 is total_byte and 44 is size of data
-    if( HAL_UART_Receive(&huart5, arr_test, 45,1000) == HAL_OK)
-    {
-      uint8_t i = 0;
-      if(arr_test[0] != 'n')
-      {
-        while((arr_test[i] != '\n'))
-        {
-          R.receieved_data[44-i] = arr_test[i];
-          i++;
-          
-          if(arr_test[i] == '\n')
-          {
-            for(uint8_t j = 0; j<(45-i); j++)
-            {
-              R.receieved_data[j] = arr_test[i+j];
-            }
-            break;
-          }
-        }
-      }
-      else
-        for(i=0;i<45;i++)
-          R.receieved_data[i] = arr_test[i];
-
+    
       R.assign_num();
       yaw_sonar = R.get_yaw();
       ex = R.get_geometry_vector();

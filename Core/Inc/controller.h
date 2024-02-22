@@ -29,6 +29,7 @@ public:
     void set(const Quaternion &qd);
     void update(Dynamics &s, const geometry::Vector &ex, const geometry::Vector &ev, float yaw_sonar, Kinematics &ctrl_input);
     geometry::Vector* get_ex();
+    geometry::Vector get_eR();
 };
 
 
