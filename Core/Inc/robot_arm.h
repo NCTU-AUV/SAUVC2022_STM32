@@ -18,6 +18,7 @@ public:
     void move(const int mode);
     void rotate(const int angle);
     void move_to(float distance);
+    void reset();
 };
 
 #endif

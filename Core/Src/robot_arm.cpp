@@ -93,3 +93,18 @@ void Robot_Arm::move_to(float distance)
         prev_val = hall_val;
 }
 }
+
+void Robot_Arm::reset()
+{
+    this->move(2);
+    int prev_val, current_val;
+    prev_val = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_8);
+    current_val = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_8);
+
+    while(1){
+        current_val = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_8);;
+        if(prev_val == 0 && current_val ==1)
+            return;
+        prev_val = current_val;
+    }
+}
