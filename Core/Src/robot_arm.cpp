@@ -38,7 +38,15 @@ void Robot_Arm::set(TIM_HandleTypeDef *t, const int sp)
  */
 void Robot_Arm::move(const int mode)
 {
-    // mode 0 long 1 short (PD9 -> AIN2 PD10 -> AIN1 black -> AO1 red -> A02) 
+    // mode 0 long 
+    //      1 short
+    // PD9 -> AIN2 
+    // PD10 -> AIN1
+    // PD11 -> STBY 
+    // PD12 -> PWMA
+    // black -> AO1 
+    // red -> A02
+
     motor[0].output(speed + 1500);
     if (mode == 0){
         HAL_GPIO_WritePin(GPIOD, GPIO_PIN_9, GPIO_PIN_SET);
@@ -66,6 +74,8 @@ void Robot_Arm::rotate(const int angle)
 
 void Robot_Arm::move_to(float distance)
 {
+    this->reset();
+
     if(distance > 0)
     {
         this->move(0); 
@@ -79,12 +89,13 @@ void Robot_Arm::move_to(float distance)
     int num_pulse = distance * 2.27;
     int cnt = 0;
 
-    int prev_val, hall_val;
+    int prev_val = 0;
+    int hall_val = 0;
     while(1){
         hall_val = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_8);
-        if(hall_val == 1 && prev_val == 0){
+        if(hall_val == 1 && prev_val == 0)
             cnt++;
-        }
+    
         if(cnt == num_pulse)
         {
             this->move(2);
@@ -98,12 +109,12 @@ void Robot_Arm::reset()
 {
     this->move(2);
     int prev_val, current_val;
-    prev_val = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_8);
     current_val = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_8);
+    prev_val = current_val;
 
     while(1){
-        current_val = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_8);;
-        if(prev_val == 0 && current_val ==1)
+        current_val = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_8);
+        if(current_val == 0 && prev_val == 1)
             return;
         prev_val = current_val;
     }

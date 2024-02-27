@@ -90,11 +90,11 @@ void Controller::set(const Quaternion &qd)
 void Controller::update(Dynamics &s, const geometry::Vector &ex, const geometry::Vector &ev, float yaw_sonar, Kinematics &ctrl_input)
 {
     //Calculate attitude error
-    qtoR(s.orientation, R);
+    /*qtoR(s.orientation, R);
     er_mul(Rd, R, Re);
     eR.x = Re[2][1];
     eR.y = Re[0][2];
-    eR.z = Re[1][0];    //(-1) * yaw_sonar; 
+    eR.z = Re[1][0];*/    //(-1) * yaw_sonar; 
     // eR.z = 0.5;
 
     eOmega.x = s.velocity.angular.x;

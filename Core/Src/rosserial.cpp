@@ -16,12 +16,13 @@ geometry::Vector* ex_pointer;
 geometry::Vector* ev_pointer;
 Dynamics* state_pointer;
 float* yaw_pointer;
-float rec;
+
 std_msgs::Float32MultiArray pub_msg;
 Quaternion q_camera2AUV;
-extern Dynamics state;
 
-int arm_angle[3];
+
+int angle;
+float desired_arm;
 float desired_depth;
 int operate;
 
@@ -46,29 +47,30 @@ void callback(const std_msgs::Float32MultiArray& msg){
   //Dynamics state;- 7-9:   ex (position error): x,y,z
 
   
-  Quaternion camera(msg.data[0], msg.data[1], msg.data[2], msg.data[3]);
+  /*Quaternion camera(msg.data[0], msg.data[1], msg.data[2], msg.data[3]);
   q_camera2AUV.x = 1;
   q_camera2AUV.y = 0;
   q_camera2AUV.z = 0;
   q_camera2AUV.w = 0;
-  state_pointer->orientation = q_camera2AUV.conjugate() * camera * q_camera2AUV; 
+  state_pointer->orientation = q_camera2AUV.conjugate() * camera * q_camera2AUV; */
   
   //state_pointer->orientation = camera;
-  state_pointer->velocity.angular.x = msg.data[4];
+  /*state_pointer->velocity.angular.x = msg.data[4];
   state_pointer->velocity.angular.y = msg.data[5];
-  state_pointer->velocity.angular.z = msg.data[6]; 
+  state_pointer->velocity.angular.z = msg.data[6];*/ 
   
   
-  ex_pointer->x = msg.data[7];
-  ex_pointer->y = msg.data[8];
+  ex_pointer->x = msg.data[3];
+  ex_pointer->y = msg.data[4];
+  desired_depth = msg.data[5];
+  desired_arm = msg.data[6];
+  angle = msg.data[7];
   
-  arm_angle[0] = msg.data[9];
-  
-  ev_pointer->x = msg.data[10];
+  /*ev_pointer->x = msg.data[10];
   ev_pointer->y = msg.data[11];
   ev_pointer->z = msg.data[12];
-  operate = msg.data[13]; //0 -> interrupt
-  desired_depth = msg.data[14];
+  operate = msg.data[13]; //0 -> interrupt*/
+  
 }
 
 ros::Publisher pub("stm32_to_rpi", &pub_msg);

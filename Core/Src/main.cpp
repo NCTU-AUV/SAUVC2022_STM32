@@ -94,10 +94,13 @@ double depth = 0;
 Dynamics state;
 // robot arm
 //extern int arm_angle[3];  //-90~90
-int angle = 0;
+
+
 int speed = 30;
 int mode = 0;
-float current_arm;
+extern float desired_arm;
+extern int angle;
+float current_arm = 0;
 
 /* USER CODE END 0 */
 
@@ -178,8 +181,8 @@ int main(void)
     return -1;
   
   //Controller
-  imu.update(state);
-  controller.set(state.orientation);
+  //imu.update(state);
+  //controller.set(state.orientation);
   //Output
   propulsion_sys.set_timer(&htim2, &htim8);
   
@@ -235,8 +238,8 @@ int main(void)
     
     
     //Controller
-    controller.update(state, ex, ev, yaw_sonar, control_input);
-    eR = controller.get_eR();
+    //controller.update(state, ex, ev, yaw_sonar, control_input);
+    
     //Allocate and Output
     control_input.linear.z = 1.3;
     
@@ -244,11 +247,15 @@ int main(void)
     interrupt = Switch.get_state();
     
     propulsion_sys.allocate(control_input);  //T200 Motor Output
-    arm.move_to(40);
+    
+    float arm_dis = desired_arm - current_arm;
+    arm.move_to(arm_dis);
+    current_arm += arm_dis;
+
     HAL_Delay(10000);
     //arm.move(1);
     //arm.rotate(angle % 90);
-    angle += 10;
+    
     //mode++;
     HAL_Delay(500);
     //Motor take turns test*-------------------------------------------

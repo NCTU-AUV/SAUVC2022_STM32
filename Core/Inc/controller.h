@@ -5,6 +5,7 @@
 
 const float weight = 24.3;
 const float buoyancy = 25.62;
+extern geometry::Vector eR; 
 
 class Controller
 {
@@ -19,7 +20,7 @@ private:
     float **Re;
     geometry::Vector ex;
     geometry::Vector ev;
-    geometry::Vector eR;
+    //geometry::Vector eR;
     geometry::Vector eOmega;
 
 public:
