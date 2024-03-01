@@ -84,11 +84,11 @@ void SystemClock_Config(void);
 
 
 // rosserial_parameters
-extern float desired_depth;  //desired depth
+
 float yaw_sonar = 0;  //yaw angle get from sonar
 geometry::Vector ex = {0, 0, 0}; // position error
 geometry::Vector ev = {0, 0, 0};       // velocity error
-geometry::Vector eR;
+//geometry::Vector eR;
 double depth = 0;
 
 Dynamics state;
@@ -98,8 +98,9 @@ Dynamics state;
 
 int speed = 30;
 int mode = 0;
-extern float desired_arm;
-extern int angle;
+int operate = 1;
+extern int arm_state;
+extern float desired_depth;  //desired depth
 float current_arm = 0;
 
 /* USER CODE END 0 */
@@ -245,16 +246,31 @@ int main(void)
     
     Switch.read_state();
     interrupt = Switch.get_state();
-    
+    if (interrupt)
+      operate = 1;
+    else
+      operate = 0;
+
+
     propulsion_sys.allocate(control_input);  //T200 Motor Output
     
-    float arm_dis = desired_arm - current_arm;
-    arm.move_to(arm_dis);
-    current_arm += arm_dis;
+    
 
     HAL_Delay(10000);
     //arm.move(1);
-    //arm.rotate(angle % 90);
+
+    if (arm_state == 2)
+      arm.move(0);
+    else if (arm_state == 3)
+      arm.move(1);
+    else if (arm_state == 1)
+      arm.rotate(90);
+    else
+    {
+      arm.move(2);
+      arm.rotate(0);
+    }
+      
     
     //mode++;
     HAL_Delay(500);

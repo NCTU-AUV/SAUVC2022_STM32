@@ -15,16 +15,16 @@ ros::NodeHandle nh;
 geometry::Vector* ex_pointer;
 geometry::Vector* ev_pointer;
 Dynamics* state_pointer;
+geometry::Vector eR;
 float* yaw_pointer;
 
 std_msgs::Float32MultiArray pub_msg;
 Quaternion q_camera2AUV;
 
 
-int angle;
-float desired_arm;
+int arm_state;
 float desired_depth;
-int operate;
+
 
 /* ----subscriber parameters
 - 0-3:   state.orientation (quaternion) w,x,y,z
@@ -58,13 +58,14 @@ void callback(const std_msgs::Float32MultiArray& msg){
   /*state_pointer->velocity.angular.x = msg.data[4];
   state_pointer->velocity.angular.y = msg.data[5];
   state_pointer->velocity.angular.z = msg.data[6];*/ 
-  
-  
+  eR.x = msg.data[0];
+  eR.y = msg.data[1];
+  eR.z = msg.data[2];
   ex_pointer->x = msg.data[3];
   ex_pointer->y = msg.data[4];
   desired_depth = msg.data[5];
-  desired_arm = msg.data[6];
-  angle = msg.data[7];
+  arm_state = msg.data[6];
+  
   
   /*ev_pointer->x = msg.data[10];
   ev_pointer->y = msg.data[11];

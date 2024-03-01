@@ -1,5 +1,8 @@
 #include "Propulsion_Sys/propulsion_sys.h"
 
+
+extern int operate;
+
 Propulsion_Sys::Propulsion_Sys()
 {
     for (int i = 0; i < 8; i++)
@@ -116,8 +119,7 @@ void Propulsion_Sys::allocate(const Kinematics &ctrl_input)
     thrust[4] *= -1;
     thrust[7] *= -1;
     
-    int operate;
     //output thurst
     for (int i = 0; i < 8; i++)
-        motor[i].output(operate * thrust[i] * 0);
+        motor[i].output(operate * thrust[i]);
 }
