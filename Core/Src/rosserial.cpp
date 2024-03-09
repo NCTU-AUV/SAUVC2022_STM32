@@ -22,8 +22,8 @@ std_msgs::Float32MultiArray pub_msg;
 Quaternion q_camera2AUV;
 
 
-int arm_state;
-float desired_depth;
+int arm_state = 0;
+float desired_depth = 0;
 
 
 /* ----subscriber parameters

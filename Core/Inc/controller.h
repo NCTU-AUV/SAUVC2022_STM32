@@ -5,7 +5,6 @@
 
 const float weight = 24.3;
 const float buoyancy = 25.62;
-extern geometry::Vector eR; 
 
 class Controller
 {
@@ -20,7 +19,7 @@ private:
     float **Re;
     geometry::Vector ex;
     geometry::Vector ev;
-    //geometry::Vector eR;
+    geometry::Vector eR;
     geometry::Vector eOmega;
 
 public:
@@ -29,6 +28,7 @@ public:
     // void adjust_yaw(Dynamics &s, float ys);
     void set(const Quaternion &qd);
     void update(Dynamics &s, const geometry::Vector &ex, const geometry::Vector &ev, float yaw_sonar, Kinematics &ctrl_input);
+    void set_eR(geometry::Vector eR_rec);
     geometry::Vector* get_ex();
     geometry::Vector get_eR();
 };

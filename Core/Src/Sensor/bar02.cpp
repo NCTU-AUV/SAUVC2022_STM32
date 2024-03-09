@@ -76,18 +76,24 @@ bool Bar02::set(I2C_HandleTypeDef* handler)
     setFluidDensity(997);
 
     // remove initial sensor value (not accurate)
+    depth_offset = 0;
+    float temp = 0;
     for(int i = 0; i < 50; i++){
         read_value();
+        temp = depth();
     }
 
+    depth_offset = depth();
+    
     // intialize 
-    float tmp = 0;
-    for(int i = 0; i < 50; i++)
+    
+    /*for(int i = 0; i < 50; i++)
     {
         read_value();
-        tmp += depth();
-    }
-    depth_offset = tmp / 50.0;
+        depth_offset = depth();
+    }*/
+    //depth_offset = depth(); 
+    //depth_offset = tmp / 50.0;
 
     return true;
 }
@@ -234,7 +240,7 @@ float Bar02::temperature()
 
 float Bar02::depth() 
 {
-	return (pressure(Bar02::Pa) - 101300) / (fluidDensity * 9.80665)- depth_offset; // from experiment we measure the offset is 0.195m
+	return (pressure(Bar02::Pa) - 101300) / (fluidDensity * 9.80665) - depth_offset; // from experiment we measure the offset is 0.195m
 }
 
 float Bar02::altitude() 

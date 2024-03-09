@@ -62,6 +62,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void Interrupt_Handle();
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -88,7 +89,7 @@ void SystemClock_Config(void);
 float yaw_sonar = 0;  //yaw angle get from sonar
 geometry::Vector ex = {0, 0, 0}; // position error
 geometry::Vector ev = {0, 0, 0};       // velocity error
-//geometry::Vector eR;
+extern geometry::Vector eR;
 double depth = 0;
 
 Dynamics state;
@@ -99,8 +100,11 @@ Dynamics state;
 int speed = 30;
 int mode = 0;
 int operate = 1;
+int done = 0;
+float depth_off = 0;
 extern int arm_state;
 extern float desired_depth;  //desired depth
+
 float current_arm = 0;
 
 /* USER CODE END 0 */
@@ -126,7 +130,7 @@ int main(void)
   Kinematics control_input = {0};  //force: x, y, z; moment: x, y, z
   // Kinematics control_input = {{0, 1, 1}, {0, 0, 0}};               0.38
   //                     Kx  ex /0.3    KV ev            KR angle error   Komega angular_v      Alpha_sonar 
-  Controller controller({0.6, 0.6, 1}, {0.2, 0.2, 0.2}, {0.05, 0.05, 0.512}, {0, 0, 0}, 0); 
+  Controller controller({0.6, 0.6, 1}, {0, 0, 0}, {0.003, 0.003, 0.01436}, {0, 0, 0}, 0); 
   Propulsion_Sys propulsion_sys;
 
   //Robot Arm
@@ -179,16 +183,20 @@ int main(void)
   bool interrupt;
   imu.set(&hspi2, GPIOB, GPIO_PIN_12);
   if (!depth_sensor.set(&hi2c1))
-    return -1;
+    Interrupt_Handle();
+
   
+
+  //depth_off = depth_sensor.depth();
   //Controller
   //imu.update(state);
-  //controller.set(state.orientation);
+  
+  controller.set(state.orientation);
   //Output
   propulsion_sys.set_timer(&htim2, &htim8);
   
   arm.set(&htim4, speed);
-  
+  int mode = 0;
 
 
   //Wait for motor to setup
@@ -225,7 +233,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
+  while (!done)
   {
     /* USER CODE END WHILE */
     /**/
@@ -234,15 +242,16 @@ int main(void)
     //Depth Sensor
     depth_sensor.read_value();
     depth = depth_sensor.depth();
-    //ex.z = desired_depth - depth_sensor.depth();
+    ex.z = desired_depth - depth_sensor.depth();
     //ex.z = 0;
     
     
     //Controller
-    //controller.update(state, ex, ev, yaw_sonar, control_input);
+    controller.set_eR(eR);
+    controller.update(state, ex, ev, yaw_sonar, control_input);
     
     //Allocate and Output
-    control_input.linear.z = 1.3;
+    control_input.linear.z = 1.1;
     
     Switch.read_state();
     interrupt = Switch.get_state();
@@ -255,14 +264,13 @@ int main(void)
     propulsion_sys.allocate(control_input);  //T200 Motor Output
     
     
-
-    HAL_Delay(10000);
-    //arm.move(1);
+  
+    //mode += 1;
 
     if (arm_state == 2)
-      arm.move(0);
-    else if (arm_state == 3)
       arm.move(1);
+    else if (arm_state == 3)
+      arm.move(0);
     else if (arm_state == 1)
       arm.rotate(90);
     else
@@ -270,10 +278,8 @@ int main(void)
       arm.move(2);
       arm.rotate(0);
     }
-      
     
-    //mode++;
-    HAL_Delay(500);
+    HAL_Delay(25);
     //Motor take turns test*-------------------------------------------
     /*
     propulsion_sys.motor[0].output(-0.2);
@@ -315,8 +321,9 @@ int main(void)
     arm.move(arm_angle);
     HAL_Delay(1500);*/
     //rosserial_publish(state.orientation.w, state.orientation.x, state.orientation.y, state.orientation.z);
-    //rosserial_publish(control_input.angular.x, control_input.angular.y, control_input.angular.z, depth);
-    rosserial_publish(eR.x, eR.y, eR.z, depth);
+    rosserial_publish(control_input.angular.x, control_input.angular.y, control_input.angular.z, depth);
+    geometry::Vector er = controller.get_eR();
+    //rosserial_publish(er.x, er.y, er.z, depth);
     //rosserial_publish(control_input.linear.x, control_input.linear.y, control_input.angular.z, depth);
     /*
     
@@ -384,6 +391,21 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+/*
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) 
+{
+    if (huart == &huart3) 
+    {
+        ex.x = 0.0;
+        ex.y = 0.0;
+        
+        HAL_UART_DeInit(&huart3);
+        MX_USART3_UART_Init();
+        extern ros::NodeHandle nh;
+        nh.getHardware()->init();
+    }
+}
+*/
 // void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 // {
 //   //if(huart->Instance == UART5)
@@ -437,6 +459,11 @@ void Error_Handler(void)
   {
   }
   /* USER CODE END Error_Handler_Debug */
+}
+
+void Interrupt_Handle()
+{
+  done = 1;
 }
 
 #ifdef  USE_FULL_ASSERT

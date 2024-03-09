@@ -87,6 +87,10 @@ void Controller::set(const Quaternion &qd)
 //     s.orientation = (1.0 - Alpha_sonar) * s.orientation + Alpha_sonar * qy;
 // }
 
+void Controller::set_eR(geometry::Vector eR_rec){
+    eR = eR_rec;
+}
+
 void Controller::update(Dynamics &s, const geometry::Vector &ex, const geometry::Vector &ev, float yaw_sonar, Kinematics &ctrl_input)
 {
     //Calculate attitude error
@@ -106,9 +110,11 @@ void Controller::update(Dynamics &s, const geometry::Vector &ex, const geometry:
     ctrl_input.linear.z = Kx.z * ex.z + Kv.z * ev.z - weight + buoyancy;
     ctrl_input.angular.x = KR.x * eR.x + KOmega.x * eOmega.x;
     ctrl_input.angular.y = KR.y * eR.y + KOmega.y * eOmega.y;
-    if (eR.x < 0.001 && eR.y < 0.001)
+    if (eR.x < 0.05 && eR.y < 0.05)
         ctrl_input.angular.z = KR.z * eR.z + KOmega.z * eOmega.z;
 }
+
+
 
 geometry::Vector Controller::get_eR(){
     return eR;
