@@ -120,6 +120,21 @@ void Propulsion_Sys::allocate(const Kinematics &ctrl_input)
     thrust[7] *= -1;
     
     //output thurst
-    for (int i = 0; i < 8; i++)
+    
+    for(int i=0; i < 8; i++)
         motor[i].output(operate * thrust[i]);
+    
+    /*for(int i=0; i < 8; i++)
+        motor[i].output(operate * 0.2);*/
+        
+    /*for (int i = 0; i < 8; i++){
+        for(int k = 0; k < 8; k++){
+            if (k == i)
+                motor[k].output(operate * 0.2);
+            else
+                motor[k].output(operate * 0);
+            HAL_Delay(500);
+        }
+    }*/
+        
 }

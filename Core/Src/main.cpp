@@ -126,11 +126,15 @@ int main(void)
   Bar02 depth_sensor;
   Switch Switch;
 
+  geometry::Vector KX = {0.6, 0.6, 1};
+  geometry::Vector KV = {0, 0, 0};
+  geometry::Vector KR = {0.004, 0.002, 0.014};
+  geometry::Vector KW = {0, 0, 0};
   //Dynamics state = {0};
   Kinematics control_input = {0};  //force: x, y, z; moment: x, y, z
   // Kinematics control_input = {{0, 1, 1}, {0, 0, 0}};               0.38
   //                     Kx  ex /0.3    KV ev            KR angle error   Komega angular_v      Alpha_sonar 
-  Controller controller({0.6, 0.6, 1}, {0, 0, 0}, {0.003, 0.003, 0.01436}, {0, 0, 0}, 0); 
+  Controller controller(KX, KV, KR, KW, 0); 
   Propulsion_Sys propulsion_sys;
 
   //Robot Arm
@@ -248,6 +252,8 @@ int main(void)
     
     //Controller
     controller.set_eR(eR);
+    if ((abs(ex.x) > 1) || (abs(ex.y) > 1))
+      controller.set_kR({KR.x, KR.y, KR.z * abs(ex.x) *abs(ex.y)});
     controller.update(state, ex, ev, yaw_sonar, control_input);
     
     //Allocate and Output
@@ -279,7 +285,7 @@ int main(void)
       arm.rotate(0);
     }
     
-    HAL_Delay(25);
+    HAL_Delay(100);
     //Motor take turns test*-------------------------------------------
     /*
     propulsion_sys.motor[0].output(-0.2);
@@ -325,21 +331,7 @@ int main(void)
     geometry::Vector er = controller.get_eR();
     //rosserial_publish(er.x, er.y, er.z, depth);
     //rosserial_publish(control_input.linear.x, control_input.linear.y, control_input.angular.z, depth);
-    /*
     
-      R.assign_num();
-      yaw_sonar = R.get_yaw();
-      ex = R.get_geometry_vector();
-      ev.x = R.get_vel0();
-      ev.y = R.get_vel1();
-      ev.z = R.get_vel2();
-      arm_angle[0] = R.get_joint0();
-      arm_angle[1] = R.get_joint1();
-      arm_angle[2] = R.get_joint2();
-      desired_depth = R.get_depth();
-      
-    }
-    */
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

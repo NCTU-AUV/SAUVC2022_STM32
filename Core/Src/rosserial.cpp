@@ -27,12 +27,10 @@ float desired_depth = 0;
 
 
 /* ----subscriber parameters
-- 0-3:   state.orientation (quaternion) w,x,y,z
-- 4-6:   state.velocity.angular: x,y,z
-- 7-8:   ex (position error): x,y
-- 9  :   servo motor angle
-- 10-12: ev (velocity error): x,y,z
-
+- 0-2:   error angle x,y,z
+- 3-4:   ex          x,y
+- 5:     desire depth
+- 6:     robot arm state
 
 */
 void callback(const std_msgs::Float32MultiArray& msg){
@@ -44,7 +42,7 @@ void callback(const std_msgs::Float32MultiArray& msg){
 
 
  
-  //Dynamics state;- 7-9:   ex (position error): x,y,z
+  
 
   
   /*Quaternion camera(msg.data[0], msg.data[1], msg.data[2], msg.data[3]);
