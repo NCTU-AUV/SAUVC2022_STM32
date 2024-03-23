@@ -25,7 +25,7 @@ Robot_Arm::~Robot_Arm()
 void Robot_Arm::set(TIM_HandleTypeDef *t, const int sp)
 {
     motor[0].set(t, TIM_CHANNEL_1);
-    motor[1].set(t, TIM_CHANNEL_2);
+    motor[1].set(t, TIM_CHANNEL_3);
     speed = sp;
     this->move(speed + 1500);
     this->rotate(0);
@@ -78,11 +78,11 @@ void Robot_Arm::move_to(float distance)
 
     if(distance > 0)
     {
-        this->move(0); 
+        this->move(1); 
     }
     else
     {
-        this->move(1);
+        this->move(0);
         distance *= -1;
     }
 

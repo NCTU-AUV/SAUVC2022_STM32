@@ -103,9 +103,12 @@ int operate = 1;
 int done = 0;
 float depth_off = 0;
 extern int arm_state;
+extern int arm_l;
+float current_arm = 0;
 extern float desired_depth;  //desired depth
 
-float current_arm = 0;
+
+
 
 /* USER CODE END 0 */
 
@@ -128,7 +131,7 @@ int main(void)
 
   geometry::Vector KX = {0.6, 0.6, 1};
   geometry::Vector KV = {0, 0, 0};
-  geometry::Vector KR = {0.004, 0.002, 0.014};
+  geometry::Vector KR = {0.004, 0.0028, 0.014};
   geometry::Vector KW = {0, 0, 0};
   //Dynamics state = {0};
   Kinematics control_input = {0};  //force: x, y, z; moment: x, y, z
@@ -201,7 +204,7 @@ int main(void)
   
   arm.set(&htim4, speed);
   int mode = 0;
-
+  float pre_arm = 0;
 
   //Wait for motor to setup
   HAL_Delay(3000);
@@ -257,7 +260,7 @@ int main(void)
     controller.update(state, ex, ev, yaw_sonar, control_input);
     
     //Allocate and Output
-    control_input.linear.z = 1.1;
+    //control_input.linear.z = 1.1;
     
     Switch.read_state();
     interrupt = Switch.get_state();
@@ -268,22 +271,36 @@ int main(void)
 
 
     propulsion_sys.allocate(control_input);  //T200 Motor Output
-    
-    
-  
-    //mode += 1;
 
-    if (arm_state == 2)
-      arm.move(1);
-    else if (arm_state == 3)
-      arm.move(0);
-    else if (arm_state == 1)
-      arm.rotate(90);
-    else
+    float arm_done = 1;
+    if (arm_l != pre_arm)
     {
-      arm.move(2);
-      arm.rotate(0);
+      arm_done = 0;
+      pre_arm = arm_l;
     }
+      
+    //mode += 1;
+    if (arm_state == 1)
+      arm.rotate(-90);
+    else
+      arm.rotate(4);
+
+    if(arm_l == 1)
+    {
+      arm.move(0);
+      HAL_Delay(1000);
+      arm_done = 1;
+    }
+    else if(arm_l == 2)
+    {
+      arm.move(1);
+      HAL_Delay(1000);
+      arm_done = 1;
+    }
+    else    
+      arm.move(2);
+     
+
     
     HAL_Delay(100);
     //Motor take turns test*-------------------------------------------
@@ -327,7 +344,7 @@ int main(void)
     arm.move(arm_angle);
     HAL_Delay(1500);*/
     //rosserial_publish(state.orientation.w, state.orientation.x, state.orientation.y, state.orientation.z);
-    rosserial_publish(control_input.angular.x, control_input.angular.y, control_input.angular.z, depth);
+    rosserial_publish(control_input.angular.x, control_input.angular.y, arm_done, depth);
     geometry::Vector er = controller.get_eR();
     //rosserial_publish(er.x, er.y, er.z, depth);
     //rosserial_publish(control_input.linear.x, control_input.linear.y, control_input.angular.z, depth);

@@ -23,6 +23,7 @@ Quaternion q_camera2AUV;
 
 
 int arm_state = 0;
+int arm_l = 0;
 float desired_depth = 0;
 
 
@@ -63,7 +64,7 @@ void callback(const std_msgs::Float32MultiArray& msg){
   ex_pointer->y = msg.data[4];
   desired_depth = msg.data[5];
   arm_state = msg.data[6];
-  
+  arm_l = msg.data[7];
   
   /*ev_pointer->x = msg.data[10];
   ev_pointer->y = msg.data[11];

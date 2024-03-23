@@ -128,9 +128,11 @@ void Propulsion_Sys::allocate(const Kinematics &ctrl_input)
         motor[i].output(operate * 0.2);*/
         
     /*for (int i = 0; i < 8; i++){
+        for(int k = 0; k < 8; k++)
+            motor[k].output(operate * 0);
         for(int k = 0; k < 8; k++){
             if (k == i)
-                motor[k].output(operate * 0.2);
+                motor[k].output(operate * 0.3);
             else
                 motor[k].output(operate * 0);
             HAL_Delay(500);
