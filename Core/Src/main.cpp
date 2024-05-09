@@ -124,7 +124,7 @@ int main(void)
   //int uart_buf_len;
   
   //sensor
-  Mpu9250 imu;
+  Mpu9250 imu(&hspi2, MPU9250_CS_GPIO_Port, MPU9250_CS_Pin);
   Bar02 depth_sensor;
 
   geometry::Vector KX = {0.6, 0.6, 1};
@@ -185,7 +185,6 @@ int main(void)
 
   //Sensor
   bool interrupt;
-  imu.set(&hspi2, MPU9250_CS_GPIO_Port, MPU9250_CS_Pin);
   if (!depth_sensor.set(&hi2c1))
     Interrupt_Handle();
 
