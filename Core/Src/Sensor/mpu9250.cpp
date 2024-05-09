@@ -2,9 +2,9 @@
 #include "Sensor/mpu9250_register_map.h"
 
 Mpu9250::Mpu9250(SPI_HandleTypeDef *spi_h, GPIO_TypeDef *cs_port, uint16_t cs_pin)
-	: q_EtoA(0, 0.707, 0.707, 0),
-	  q_ItoE(0.707, -0.707, 0, 0), /*q_ItoE(0, -0.707, -0.707, 0)*/
-	  Spi_Sensor(spi_h, cs_port, cs_pin)
+	: Spi_Sensor(spi_h, cs_port, cs_pin),
+	  q_EtoA(0, 0.707, 0.707, 0),
+	  q_ItoE(0.707, -0.707, 0, 0) /*q_ItoE(0, -0.707, -0.707, 0)*/
 {
 	if (read_register(WHO_AM_I_MPU9250) != 0x71)
 		return;
