@@ -25,7 +25,6 @@
 #include "usart.h"
 #include "gpio.h"
 #include "rosserial.h"
-#include "interrupt.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -99,7 +98,7 @@ Dynamics state;
 
 int speed = 30;
 int mode = 0;
-int operate = 1;
+bool operate = true;
 int done = 0;
 float depth_off = 0;
 extern int arm_state;
@@ -127,7 +126,6 @@ int main(void)
   //sensor
   Mpu9250 imu;
   Bar02 depth_sensor;
-  Switch Switch;
 
   geometry::Vector KX = {0.6, 0.6, 1};
   geometry::Vector KV = {0, 0, 0};
@@ -186,7 +184,6 @@ int main(void)
   HAL_Delay(1000);
 
   //Sensor
-  Switch.read_state();
   bool interrupt;
   imu.set(&hspi2, MPU9250_CS_GPIO_Port, MPU9250_CS_Pin);
   if (!depth_sensor.set(&hi2c1))
@@ -262,13 +259,7 @@ int main(void)
     //Allocate and Output
     //control_input.linear.z = 1.1;
     
-    Switch.read_state();
-    interrupt = Switch.get_state();
-    if (interrupt)
-      operate = 1;
-    else
-      operate = 0;
-
+    operate = HAL_GPIO_ReadPin(KILL_SWITCH_GPIO_Port, KILL_SWITCH_Pin) == GPIO_PIN_SET;
 
     propulsion_sys.allocate(control_input);  //T200 Motor Output
 

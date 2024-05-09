@@ -1,7 +1,7 @@
 #include "Propulsion_Sys/propulsion_sys.h"
 
 
-extern int operate;
+extern bool operate;
 
 Propulsion_Sys::Propulsion_Sys()
 {
