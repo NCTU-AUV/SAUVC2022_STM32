@@ -188,7 +188,7 @@ int main(void)
   //Sensor
   Switch.read_state();
   bool interrupt;
-  imu.set(&hspi2, GPIOB, GPIO_PIN_12);
+  imu.set(&hspi2, MPU9250_CS_GPIO_Port, MPU9250_CS_Pin);
   if (!depth_sensor.set(&hi2c1))
     Interrupt_Handle();
 

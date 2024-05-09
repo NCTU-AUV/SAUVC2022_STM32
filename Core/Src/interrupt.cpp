@@ -13,7 +13,7 @@ Switch::~Switch()
 
 void Switch::read_state()
 {
-    interrupt = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_2);
+    interrupt = HAL_GPIO_ReadPin(KILL_SWITCH_GPIO_Port, KILL_SWITCH_Pin);
 }
 
 

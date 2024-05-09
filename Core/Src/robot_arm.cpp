@@ -49,21 +49,21 @@ void Robot_Arm::move(const int mode)
 
     motor[0].output(speed + 1500);
     if (mode == 0){
-        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_9, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(DC_MOTOR_AIN2_GPIO_Port, DC_MOTOR_AIN2_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(DC_MOTOR_AIN1_GPIO_Port, DC_MOTOR_AIN1_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(DC_MOTOR_STBY_GPIO_Port, DC_MOTOR_STBY_Pin, GPIO_PIN_SET);
     
     }
     else if(mode == 1){
-        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_9, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(DC_MOTOR_AIN2_GPIO_Port, DC_MOTOR_AIN2_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(DC_MOTOR_AIN1_GPIO_Port, DC_MOTOR_AIN1_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(DC_MOTOR_STBY_GPIO_Port, DC_MOTOR_STBY_Pin, GPIO_PIN_SET);
         
     }
     else if(mode == 2){
-        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_9, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(DC_MOTOR_AIN2_GPIO_Port, DC_MOTOR_AIN2_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(DC_MOTOR_AIN1_GPIO_Port, DC_MOTOR_AIN1_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(DC_MOTOR_STBY_GPIO_Port, DC_MOTOR_STBY_Pin, GPIO_PIN_SET);
         
     }
 }
@@ -92,7 +92,7 @@ void Robot_Arm::move_to(float distance)
     int prev_val = 0;
     int hall_val = 0;
     while(1){
-        hall_val = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_8);
+        hall_val = HAL_GPIO_ReadPin(DC_MOTOR_HALL_GPIO_Port, DC_MOTOR_HALL_Pin);
         if(hall_val == 1 && prev_val == 0)
             cnt++;
     
@@ -109,11 +109,11 @@ void Robot_Arm::reset()
 {
     this->move(2);
     int prev_val, current_val;
-    current_val = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_8);
+    current_val = HAL_GPIO_ReadPin(DC_MOTOR_HALL_GPIO_Port, DC_MOTOR_HALL_Pin);
     prev_val = current_val;
 
     while(1){
-        current_val = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_8);
+        current_val = HAL_GPIO_ReadPin(DC_MOTOR_HALL_GPIO_Port, DC_MOTOR_HALL_Pin);
         if(current_val == 0 && prev_val == 1)
             return;
         prev_val = current_val;
