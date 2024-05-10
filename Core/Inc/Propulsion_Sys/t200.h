@@ -23,10 +23,7 @@ private:
     int prev_signal = 1500;
 
 public:
-    T200();
-    T200(TIM_HandleTypeDef* t, uint32_t c);
-    ~T200();
-    void set(TIM_HandleTypeDef* t, uint32_t c);
+    T200(TIM_HandleTypeDef *t, uint32_t c);
     void output(const float &force);
 };
 

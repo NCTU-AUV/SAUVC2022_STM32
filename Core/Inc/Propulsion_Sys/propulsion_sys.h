@@ -9,11 +9,11 @@ class Propulsion_Sys
 {
 private:
     float thrust[8];
+
 public:
     T200 motor[8];
-    Propulsion_Sys();
-    ~Propulsion_Sys();
-    void set_timer(TIM_HandleTypeDef *tim1, TIM_HandleTypeDef *tim2);
+    Propulsion_Sys(TIM_HandleTypeDef *tim1, TIM_HandleTypeDef *tim2);
+    void stop();
     void allocate(const Kinematics &ctrl_input);
 };
 

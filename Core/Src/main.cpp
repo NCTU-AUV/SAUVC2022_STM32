@@ -134,7 +134,7 @@ int main(void)
   // Kinematics control_input = {{0, 1, 1}, {0, 0, 0}};               0.38
   //                     Kx  ex /0.3    KV ev            KR angle error   Komega angular_v      Alpha_sonar
   Controller controller(KX, KV, KR, KW, 0);
-  Propulsion_Sys propulsion_sys;
+  Propulsion_Sys propulsion_sys(&htim2, &htim8);
 
   // Robot Arm
   Robot_Arm arm;
@@ -191,7 +191,6 @@ int main(void)
 
   controller.set(state.orientation);
   // Output
-  propulsion_sys.set_timer(&htim2, &htim8);
 
   arm.set(&htim4, speed);
   float pre_arm = 0;
@@ -255,7 +254,8 @@ int main(void)
 
     operate = HAL_GPIO_ReadPin(KILL_SWITCH_GPIO_Port, KILL_SWITCH_Pin) == GPIO_PIN_SET;
 
-    propulsion_sys.allocate(control_input); // T200 Motor Output
+    // T200 Motor Output
+    propulsion_sys.allocate(control_input);
 
     float arm_done = 1;
     if (arm_l != pre_arm)
@@ -333,6 +333,10 @@ int main(void)
     // rosserial_publish(control_input.linear.x, control_input.linear.y, control_input.angular.z, depth);
 
   }
+
+  propulsion_sys.stop();
+
+  while(true);
   /* USER CODE END 3 */
 }
 
