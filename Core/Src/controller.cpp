@@ -52,7 +52,7 @@ void qtoR(const Quaternion &qd, float m[3][3])
  * @param Omega KOmega
  * @param alpha 0~1 how much we trust sonar yaw
  */
-Controller::Controller(geometry::Vector x, geometry::Vector v, geometry::Vector kR, geometry::Vector Omega, float alpha) : Kx(x), Kv(v), KR(kR), KOmega(Omega), Alpha_sonar(alpha)
+Controller::Controller(Vector3D x, Vector3D v, Vector3D kR, Vector3D Omega, float alpha) : Kx(x), Kv(v), KR(kR), KOmega(Omega), Alpha_sonar(alpha)
 {
 }
 
@@ -61,17 +61,17 @@ void Controller::set(const Quaternion &qd)
     qtoR(qd, Rd);
 }
 
-void Controller::set_eR(geometry::Vector eR_rec)
+void Controller::set_eR(Vector3D eR_rec)
 {
     eR = eR_rec;
 }
 
-void Controller::set_kR(geometry::Vector kr)
+void Controller::set_kR(Vector3D kr)
 {
     KR = kr;
 }
 
-void Controller::update(Dynamics &s, const geometry::Vector &ex, const geometry::Vector &ev, float yaw_sonar, Kinematics &ctrl_input)
+void Controller::update(Dynamics &s, const Vector3D &ex, const Vector3D &ev, float yaw_sonar, Kinematics &ctrl_input)
 {
     // Calculate attitude error
     /*qtoR(s.orientation, R);
@@ -125,12 +125,12 @@ void Controller::update(Dynamics &s, const geometry::Vector &ex, const geometry:
         ctrl_input.angular.z = 0;*/
 }
 
-geometry::Vector Controller::get_eR()
+Vector3D Controller::get_eR()
 {
     return eR;
 }
 
-geometry::Vector *Controller::get_ex()
+Vector3D *Controller::get_ex()
 {
     return &ex;
 }

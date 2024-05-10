@@ -1,14 +1,11 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-namespace geometry
+struct Vector3D
 {
-    struct Vector
-    {
-        float x;
-        float y;
-        float z;
-    };
-}
+    float x;
+    float y;
+    float z;
+};
 
 #endif

@@ -6,13 +6,13 @@
 
 struct Kinematics
 {
-    geometry::Vector linear;
-    geometry::Vector angular;
+    Vector3D linear;
+    Vector3D angular;
 };
 
 struct Dynamics
 {
-    geometry::Vector position;
+    Vector3D position;
     Quaternion orientation;
 
     Kinematics velocity;

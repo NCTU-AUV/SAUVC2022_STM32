@@ -79,18 +79,18 @@ void Interrupt_Handle();
 // float desired_depth = 0.5;  //desired depth
 // float yaw_sonar = 0;  //yaw angle get from sonar
 // float val2 = 0;
-// geometry::Vector ex = {0, 2, 0};
-// geometry::Vector ev = {0};
+// Vector3D ex = {0, 2, 0};
+// Vector3D ev = {0};
 
 // rosserial_parameters
 
 // yaw angle get from sonar
 float yaw_sonar = 0;
 // position error
-geometry::Vector ex = {0, 0, 0};
+Vector3D ex = {0, 0, 0};
 // velocity error
-geometry::Vector ev = {0, 0, 0};
-extern geometry::Vector eR;
+Vector3D ev = {0, 0, 0};
+extern Vector3D eR;
 double depth = 0;
 
 Dynamics state;
@@ -125,10 +125,10 @@ int main(void)
   Mpu9250 imu(&hspi2, MPU9250_CS_GPIO_Port, MPU9250_CS_Pin);
   Bar02 depth_sensor;
 
-  geometry::Vector KX = {0.6, 0.6, 1};
-  geometry::Vector KV = {0, 0, 0};
-  geometry::Vector KR = {0.004, 0.0028, 0.014};
-  geometry::Vector KW = {0, 0, 0};
+  Vector3D KX = {0.6, 0.6, 1};
+  Vector3D KV = {0, 0, 0};
+  Vector3D KR = {0.004, 0.0028, 0.014};
+  Vector3D KW = {0, 0, 0};
   // Dynamics state = {0};
   Kinematics control_input = {0}; // force: x, y, z; moment: x, y, z
   // Kinematics control_input = {{0, 1, 1}, {0, 0, 0}};               0.38
@@ -328,7 +328,7 @@ int main(void)
     HAL_Delay(1500);*/
     // rosserial_publish(state.orientation.w, state.orientation.x, state.orientation.y, state.orientation.z);
     rosserial_publish(control_input.angular.x, control_input.angular.y, arm_done, depth);
-    geometry::Vector er = controller.get_eR();
+    Vector3D er = controller.get_eR();
     // rosserial_publish(er.x, er.y, er.z, depth);
     // rosserial_publish(control_input.linear.x, control_input.linear.y, control_input.angular.z, depth);
 

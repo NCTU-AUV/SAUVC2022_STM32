@@ -10,7 +10,7 @@ class Read_data
     bool accessible;
     float depth;
     float yaw;
-    geometry::Vector v;
+    Vector3D v;
     float velocity[3];
     float joint[3];
 
@@ -26,7 +26,7 @@ public:
     float get_yaw(){return yaw;};
     bool access_ok(){return accessible;};
     void access_init(){accessible = false;};
-    geometry::Vector get_geometry_vector(){return v;};
+    Vector3D get_geometry_vector(){return v;};
     float get_joint0(){return joint[0];};
     float get_joint1(){return joint[1];};
     float get_joint2(){return joint[2];};
